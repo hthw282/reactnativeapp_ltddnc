@@ -1,27 +1,28 @@
 import categoryModel from "../models/categoryModel.js";
 import productModel from "../models/productModel.js";
 
-// CREAT CAT
+// CREATE CAT
 export const createCategory = async (req, res) => {
   try {
-    const { category } = req.body;
+    const { category, icon } = req.body;
     // validation
-    if (!category) {
+    if (!category || !icon) {
       return res.status(404).send({
         success: false,
-        message: "please provide category name",
+        message: "please provide all fields",
       });
     }
-    await categoryModel.create({ category });
+    await categoryModel.create({ category, icon });
     res.status(201).send({
       success: true,
-      message: `${category} category creted successfully`,
+      message: `${category} category created successfully`,
     });
   } catch (error) {
     console.log(error);
     res.status(500).send({
       success: false,
       message: "Error In Create Cat API",
+      error,
     });
   }
 };
@@ -41,6 +42,7 @@ export const getAllCategoriesController = async (req, res) => {
     res.status(500).send({
       success: false,
       message: "Error In Get All Cat API",
+      error,
     });
   }
 };
@@ -88,7 +90,8 @@ export const deleteCategoryController = async (req, res) => {
   }
 };
 
-// UDPATE CAT
+// UDPATE CAT 
+// truyền vào cả 2 field
 export const updateCategoryController = async (req, res) => {
   try {
     // find category
@@ -100,8 +103,10 @@ export const updateCategoryController = async (req, res) => {
         message: "Category not found",
       });
     }
+
     // get new cat
-    const { updatedCategory } = req.body;
+    const { updatedCategory, updatedIcon } = req.body;
+
     // find product with this category id
     const products = await productModel.find({ category: category._id });
     // update producty category
@@ -110,8 +115,10 @@ export const updateCategoryController = async (req, res) => {
       product.category = updatedCategory;
       await product.save();
     }
-    if (updatedCategory) category.category = updatedCategory;
-
+    if (updatedCategory && updatedIcon) {
+      category.category = updatedCategory;
+      category.icon = updatedIcon
+    }
     // save
     await category.save();
     res.status(200).send({

@@ -1,5 +1,5 @@
 import express from "express";
-import { isAdmin, isAuth } from "./../middlewares/authMiddleware.js";
+import { isAuth } from "./../middlewares/authMiddleware.js";
 import {
   createProductController,
   deleteProductController,
@@ -7,7 +7,7 @@ import {
   getAllProductsController,
   getSingleProductController,
   getTopProductsController,
-  productReviewController,
+//   productReviewController,
   updateProductController,
   updateProductImageController,
 } from "../controllers/productController.js";
@@ -16,7 +16,7 @@ import { singleUpload } from "../middlewares/multer.js";
 const router = express.Router();
 
 //rroutes
-// ============== PRODUCT ROUTES ==================
+// // ============== PRODUCT ROUTES ==================
 
 // GET ALL PRODUCTS
 router.get("/get-all", getAllProductsController);
@@ -28,16 +28,16 @@ router.get("/top", getTopProductsController);
 router.get("/:id", getSingleProductController);
 
 // CREATE PRODUCT
-router.post("/create", isAuth, isAdmin, singleUpload, createProductController);
+router.post("/create", isAuth, singleUpload, createProductController);
 
 // UPDATE PRODUCT
-router.put("/:id", isAuth, isAdmin, updateProductController);
+router.put("/:id", isAuth, updateProductController);
 
 // UPDATE PRODUCT IMAGE
 router.put(
   "/image/:id",
   isAuth,
-  isAdmin,
+//   isAdmin,
   singleUpload,
   updateProductImageController
 );
@@ -46,16 +46,18 @@ router.put(
 router.delete(
   "/delete-image/:id",
   isAuth,
-  isAdmin,
+//   isAdmin,
   deleteProductImageController
 );
 
 // delete product
-router.delete("/delete/:id", isAuth, isAdmin, deleteProductController);
+router.delete("/delete/:id", isAuth,
+  //  isAdmin,
+    deleteProductController);
 
-// REVIEW PRODUCT
-router.put("/:id/review", isAuth, productReviewController);
+// // REVIEW PRODUCT
+// router.put("/:id/review", isAuth, productReviewController);
 
-// ====================================================================
+// // ====================================================================
 
 export default router;

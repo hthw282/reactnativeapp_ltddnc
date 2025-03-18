@@ -6,6 +6,10 @@ const categorySchema = new mongoose.Schema(
       type: String,
       required: [true, "category  is required"],
     },
+    icon: {
+      type: String,
+      required: [true, "Icon is required"], 
+    },
   },
   { timestamps: true }
 );

@@ -13,7 +13,7 @@ export const getAllProductsController = async (req, res) => {
           $regex: keyword ? keyword : "",
           $options: "i",
         },
-        // category: category ? category : null,
+        category: category ? category : { $exists: true },
       })
       .populate("category");
     res.status(200).send({
@@ -35,10 +35,10 @@ export const getAllProductsController = async (req, res) => {
 // GET TOP PRODUCT
 export const getTopProductsController = async (req, res) => {
   try {
-    const products = await productModel.find({}).sort({ rating: -1 }).limit(3);
+    const products = await productModel.find({}).sort({ rating: -1 }).limit(10);
     res.status(200).send({
       success: true,
-      message: "top 3 products",
+      message: "top 10 products",
       products,
     });
   } catch (error) {
@@ -88,8 +88,8 @@ export const getSingleProductController = async (req, res) => {
 // CREATE PRODUCT
 export const createProductController = async (req, res) => {
   try {
-    const { name, description, price, category, stock } = req.body;
-    // // validtion
+    const { name, brand, description, price, specs, stock, category , releaseDate, features } = req.body;
+    // validtion
     // if (!name || !description || !price || !stock) {
     //   return res.status(500).send({
     //     success: false,
@@ -110,12 +110,7 @@ export const createProductController = async (req, res) => {
     };
 
     await productModel.create({
-      name,
-      description,
-      price,
-      category,
-      stock,
-      images: [image],
+      name, brand, description, price, specs, stock, category, images: [image], releaseDate, features
     });
 
     res.status(201).send({
@@ -144,13 +139,19 @@ export const updateProductController = async (req, res) => {
         message: "Product not found",
       });
     }
-    const { name, description, price, stock, category } = req.body;
+    const { name, brand, description, price, discount, specs, stock, category, warranty, releaseDate, features } = req.body;
     // validate and update
     if (name) product.name = name;
+    if (brand) product.brand = brand;
     if (description) product.description = description;
     if (price) product.price = price;
+    if (discount) product.discount = discount;
+    if (specs) product.specs = specs;
     if (stock) product.stock = stock;
     if (category) product.category = category;
+    if (warranty) product.warranty = warranty;
+    if (releaseDate) product.releaseDate = releaseDate;
+    if (features) product.features = features;
 
     await product.save();
     res.status(200).send({
@@ -224,12 +225,12 @@ export const updateProductImageController = async (req, res) => {
   }
 };
 
-// DELETE PROEDUCT IMAGE
+// DELETE PRODUCT IMAGE
 export const deleteProductImageController = async (req, res) => {
   try {
-    // find produtc
+    // find product
     const product = await productModel.findById(req.params.id);
-    // validatin
+    // validating
     if (!product) {
       return res.status(404).send({
         success: false,
@@ -262,7 +263,7 @@ export const deleteProductImageController = async (req, res) => {
     await product.save();
     return res.status(200).send({
       success: true,
-      message: "Product Image Dleteed Successfully",
+      message: "Product Image Deleted Successfully",
     });
   } catch (error) {
     console.log(error);
@@ -281,7 +282,7 @@ export const deleteProductImageController = async (req, res) => {
   }
 };
 
-// DLEETE PRODUCT
+// DELETE PRODUCT
 export const deleteProductController = async (req, res) => {
   try {
     // find product
@@ -319,56 +320,56 @@ export const deleteProductController = async (req, res) => {
   }
 };
 
-// CREATE PRODUCT REVIEW AND COMMENT
-export const productReviewController = async (req, res) => {
-  try {
-    const { comment, rating } = req.body;
-    // find product
-    const product = await productModel.findById(req.params.id);
-    // check previous review
-    const alreadyReviewed = product.reviews.find(
-      (r) => r.user.toString() === req.user._id.toString()
-    );
-    if (alreadyReviewed) {
-      return res.status(400).send({
-        success: false,
-        message: "Product Alredy Reviewed",
-      });
-    }
-    // review object
-    const review = {
-      name: req.user.name,
-      rating: Number(rating),
-      comment,
-      user: req.user._id,
-    };
-    // passing review object to reviews array
-    product.reviews.push(review);
-    // number or reviews
-    product.numReviews = product.reviews.length;
-    product.rating =
-      product.reviews.reduce((acc, item) => item.rating + acc, 0) /
-      product.reviews.length;
-    // save
-    await product.save();
-    res.status(200).send({
-      success: true,
-      message: "Review Added!",
-    });
-  } catch (error) {
-    console.log(error);
-    // cast error ||  OBJECT ID
-    if (error.name === "CastError") {
-      return res.status(500).send({
-        success: false,
-        message: "Invalid Id",
-      });
-    }
-    res.status(500).send({
-      success: false,
-      message: "Error In Review Comment API",
-      error,
-    });
-  }
-};
+// // CREATE PRODUCT REVIEW AND COMMENT
+// export const productReviewController = async (req, res) => {
+//   try {
+//     const { comment, rating } = req.body;
+//     // find product
+//     const product = await productModel.findById(req.params.id);
+//     // check previous review
+//     const alreadyReviewed = product.reviews.find(
+//       (r) => r.user.toString() === req.user._id.toString()
+//     );
+//     if (alreadyReviewed) {
+//       return res.status(400).send({
+//         success: false,
+//         message: "Product Alredy Reviewed",
+//       });
+//     }
+//     // review object
+//     const review = {
+//       name: req.user.name,
+//       rating: Number(rating),
+//       comment,
+//       user: req.user._id,
+//     };
+//     // passing review object to reviews array
+//     product.reviews.push(review);
+//     // number or reviews
+//     product.numReviews = product.reviews.length;
+//     product.rating =
+//       product.reviews.reduce((acc, item) => item.rating + acc, 0) /
+//       product.reviews.length;
+//     // save
+//     await product.save();
+//     res.status(200).send({
+//       success: true,
+//       message: "Review Added!",
+//     });
+//   } catch (error) {
+//     console.log(error);
+//     // cast error ||  OBJECT ID
+//     if (error.name === "CastError") {
+//       return res.status(500).send({
+//         success: false,
+//         message: "Invalid Id",
+//       });
+//     }
+//     res.status(500).send({
+//       success: false,
+//       message: "Error In Review Comment API",
+//       error,
+//     });
+//   }
+// };
 

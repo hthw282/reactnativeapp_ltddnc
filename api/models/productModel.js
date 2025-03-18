@@ -30,6 +30,7 @@ const productSchema = new mongoose.Schema(
       type: String,
       required: [true, "product name is required"],
     },
+    brand: { type: mongoose.Schema.Types.ObjectId, ref: "Brand" },
     description: {
       type: String,
       required: [true, "produvct description is required"],
@@ -38,13 +39,25 @@ const productSchema = new mongoose.Schema(
       type: Number,
       required: [true, "product price is required"],
     },
+    discount: { type: Number, default: 0 },
+    specs: {
+      screenSize: String,
+      resolution: String,
+      cpu: String,
+      gpu: String,
+      ram: Number,
+      storage: Number,
+      battery: String,
+      os: String,
+      weight: String,
+    },
     stock: {
       type: Number,
       required: [true, "product stock required"],
     },
     // quantity: {
     //   type: Number,
-    //   required: [true, "product quantity required"],
+    //   required: [true, "product quantity required"], 
     // },
     category: {
       type: mongoose.Schema.Types.ObjectId,
@@ -65,6 +78,9 @@ const productSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
+    warranty: { type: String, default: "12 months" },
+    releaseDate: { type: Date },
+    features: [String],
   },
   { timestamps: true }
 );
